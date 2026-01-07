@@ -119,7 +119,7 @@ export function CategoryManager() {
               </h3>
               <button
                 onClick={handleCancel}
-                className="p-2 rounded-xl bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-colors"
+                className="p-2 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-white/20 transition-colors"
               >
                 <X className="w-5 h-5 text-foreground/70" />
               </button>
@@ -134,7 +134,7 @@ export function CategoryManager() {
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-white/50 backdrop-blur-sm border border-foreground/10 text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                  className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-foreground/10 dark:border-foreground/20 text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
                   placeholder="Category name"
                 />
               </div>
@@ -153,7 +153,7 @@ export function CategoryManager() {
                       className={`p-4 rounded-xl transition-all ${
                         formData.icon === name
                           ? 'bg-foreground text-background soft-shadow'
-                          : 'bg-white/50 backdrop-blur-sm text-foreground/70 hover:text-foreground soft-shadow'
+                          : 'bg-white/50 dark:bg-white/10 backdrop-blur-sm text-foreground/70 hover:text-foreground soft-shadow'
                       }`}
                     >
                       <Icon className="w-6 h-6 mx-auto" />
@@ -176,7 +176,7 @@ export function CategoryManager() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleCancel}
-                  className="px-6 py-3 rounded-xl bg-white/50 backdrop-blur-sm text-foreground/70 hover:text-foreground font-medium transition-colors soft-shadow"
+                  className="px-6 py-3 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm text-foreground/70 hover:text-foreground font-medium transition-colors soft-shadow"
                 >
                   Cancel
                 </motion.button>
@@ -205,7 +205,7 @@ export function CategoryManager() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-xl bg-white/50 backdrop-blur-sm soft-shadow">
+                    <div className="p-3 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm soft-shadow">
                       <IconComponent className="w-6 h-6 text-foreground/70" />
                     </div>
                     <div>
@@ -222,7 +222,7 @@ export function CategoryManager() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => handleEdit(category)}
-                      className="p-2 rounded-xl bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-colors"
+                      className="p-2 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-white/20 transition-colors"
                     >
                       <Edit2 className="w-4 h-4 text-foreground/70" />
                     </motion.button>
@@ -230,7 +230,7 @@ export function CategoryManager() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => handleDelete(category.id)}
-                      className="p-2 rounded-xl bg-white/50 backdrop-blur-sm hover:bg-red-500/20 transition-colors"
+                      className="p-2 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm hover:bg-red-500/20 dark:hover:bg-red-500/30 transition-colors"
                     >
                       <Trash2 className="w-4 h-4 text-red-500" />
                     </motion.button>

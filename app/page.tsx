@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { MenuItem } from '@/components/MenuItem'
 import { MenuCategory } from '@/components/MenuCategory'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { getMenuData, type MenuCategory as MenuCategoryType } from '@/lib/menu-data'
 
 export default function Home() {
@@ -34,7 +35,7 @@ export default function Home() {
       {/* Background decorative elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <motion.div
-          className="absolute top-20 -left-20 w-96 h-96 bg-soft-sage/20 rounded-full blur-3xl"
+          className="absolute top-20 -left-20 w-96 h-96 bg-soft-sage/20 dark:bg-soft-dark-sage/20 rounded-full blur-3xl"
           animate={{
             x: [0, 50, 0],
             y: [0, 30, 0],
@@ -46,7 +47,7 @@ export default function Home() {
           }}
         />
         <motion.div
-          className="absolute bottom-20 -right-20 w-96 h-96 bg-soft-blush/20 rounded-full blur-3xl"
+          className="absolute bottom-20 -right-20 w-96 h-96 bg-soft-blush/20 dark:bg-soft-dark-blush/20 rounded-full blur-3xl"
           animate={{
             x: [0, -50, 0],
             y: [0, -30, 0],
@@ -58,7 +59,7 @@ export default function Home() {
           }}
         />
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-soft-mist/10 rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-soft-mist/10 dark:bg-soft-dark-mist/10 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.1, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -73,6 +74,16 @@ export default function Home() {
 
       {/* Main content */}
       <div className="relative z-10">
+        {/* Theme Toggle */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="fixed top-6 right-6 z-30"
+        >
+          <ThemeToggle />
+        </motion.div>
+
         {/* Header */}
         <motion.header
           initial={{ opacity: 0, y: -20 }}

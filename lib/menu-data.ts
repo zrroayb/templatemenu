@@ -7,6 +7,7 @@ export interface MenuItem {
   description: string
   price: number
   tags: string[]
+  imageUrl?: string
 }
 
 export interface MenuCategory {
@@ -28,6 +29,7 @@ let menuData: MenuCategory[] = [
         description: 'Crispy risotto balls with black truffle and parmesan, served with aioli',
         price: 18,
         tags: ['Vegetarian', 'Gluten Free'],
+        imageUrl: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=400&fit=crop&q=80',
       },
       {
         id: 2,
@@ -35,6 +37,7 @@ let menuData: MenuCategory[] = [
         description: 'Creamy burrata with aged prosciutto, arugula, and balsamic reduction',
         price: 22,
         tags: [],
+        imageUrl: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400&h=400&fit=crop&q=80',
       },
       {
         id: 3,
@@ -42,6 +45,7 @@ let menuData: MenuCategory[] = [
         description: 'Golden fried artichokes with lemon aioli and fresh herbs',
         price: 16,
         tags: ['Vegetarian'],
+        imageUrl: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=400&fit=crop&q=80',
       },
     ],
   },
@@ -56,6 +60,7 @@ let menuData: MenuCategory[] = [
         description: 'Atlantic salmon with roasted vegetables, quinoa, and herb butter',
         price: 32,
         tags: ['Gluten Free'],
+        imageUrl: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=400&fit=crop&q=80',
       },
       {
         id: 5,
@@ -63,6 +68,7 @@ let menuData: MenuCategory[] = [
         description: '8oz premium wagyu with truffle mashed potatoes and seasonal vegetables',
         price: 68,
         tags: [],
+        imageUrl: 'https://images.unsplash.com/photo-1558030006-450675393462?w=400&h=400&fit=crop&q=80',
       },
       {
         id: 6,
@@ -70,6 +76,7 @@ let menuData: MenuCategory[] = [
         description: 'Creamy arborio rice with wild mushrooms, parmesan, and white wine',
         price: 26,
         tags: ['Vegetarian'],
+        imageUrl: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&h=400&fit=crop&q=80',
       },
       {
         id: 7,
@@ -77,6 +84,7 @@ let menuData: MenuCategory[] = [
         description: 'Three lamb chops with mint pesto, roasted root vegetables, and jus',
         price: 42,
         tags: [],
+        imageUrl: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=400&fit=crop&q=80',
       },
     ],
   },
@@ -91,6 +99,7 @@ let menuData: MenuCategory[] = [
         description: 'Warm dark chocolate soufflé with vanilla ice cream',
         price: 16,
         tags: ['Vegetarian'],
+        imageUrl: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&h=400&fit=crop&q=80',
       },
       {
         id: 9,
@@ -98,6 +107,7 @@ let menuData: MenuCategory[] = [
         description: 'Zesty lemon curd in a buttery shortcrust, with fresh berries',
         price: 14,
         tags: ['Vegetarian'],
+        imageUrl: 'https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=400&h=400&fit=crop&q=80',
       },
       {
         id: 10,
@@ -105,6 +115,7 @@ let menuData: MenuCategory[] = [
         description: 'Classic Italian dessert with espresso-soaked ladyfingers and mascarpone',
         price: 15,
         tags: ['Vegetarian'],
+        imageUrl: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&h=400&fit=crop&q=80',
       },
     ],
   },
@@ -119,6 +130,7 @@ let menuData: MenuCategory[] = [
         description: 'Curated selection of handcrafted cocktails',
         price: 14,
         tags: [],
+        imageUrl: 'https://images.unsplash.com/photo-1536935338788-846bb9981813?w=400&h=400&fit=crop&q=80',
       },
       {
         id: 12,
@@ -126,6 +138,7 @@ let menuData: MenuCategory[] = [
         description: 'Premium wines from renowned vineyards',
         price: 12,
         tags: [],
+        imageUrl: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=400&fit=crop&q=80',
       },
       {
         id: 13,
@@ -133,6 +146,7 @@ let menuData: MenuCategory[] = [
         description: 'Single-origin coffee, espresso, and specialty drinks',
         price: 8,
         tags: ['Vegetarian'],
+        imageUrl: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=400&fit=crop&q=80',
       },
     ],
   },

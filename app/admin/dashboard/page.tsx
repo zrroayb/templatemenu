@@ -76,7 +76,7 @@ export default function AdminDashboard() {
           </div>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/50 backdrop-blur-sm soft-shadow hover:soft-shadow-hover transition-all text-foreground/70 hover:text-foreground"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm soft-shadow hover:soft-shadow-hover transition-all text-foreground/70 hover:text-foreground"
           >
             <Home className="w-4 h-4" />
             View Menu
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 border-b border-foreground/10">
+        <div className="flex gap-2 border-b border-foreground/10 dark:border-foreground/20">
           {[
             { id: 'menu' as TabType, label: 'Menu Items', icon: MenuIcon },
             { id: 'categories' as TabType, label: 'Categories', icon: Grid },
@@ -169,7 +169,7 @@ function StatCard({ icon: Icon, label, value, color, delay }: {
       className={`glass-effect rounded-2xl p-6 soft-shadow ${color}`}
     >
       <div className="flex items-center justify-between mb-4">
-        <div className={`p-3 rounded-xl bg-white/50 backdrop-blur-sm ${color}`}>
+        <div className={`p-3 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm ${color}`}>
           <Icon className="w-5 h-5 text-foreground/70" />
         </div>
       </div>
@@ -190,7 +190,7 @@ function SettingsPanel() {
           </label>
           <input
             type="text"
-            className="w-full px-4 py-3 rounded-xl bg-white/50 backdrop-blur-sm border border-foreground/10 text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
+            className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-foreground/10 dark:border-foreground/20 text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
             placeholder="Enter restaurant name"
           />
         </div>

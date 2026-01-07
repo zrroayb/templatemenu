@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Lock, LogIn } from 'lucide-react'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 export default function AdminLogin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -37,10 +38,20 @@ export default function AdminLogin() {
 
   return (
     <main className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      {/* Theme Toggle */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="fixed top-6 right-6 z-30"
+      >
+        <ThemeToggle />
+      </motion.div>
+
       {/* Background decorative elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <motion.div
-          className="absolute top-20 -left-20 w-96 h-96 bg-soft-sage/20 rounded-full blur-3xl"
+          className="absolute top-20 -left-20 w-96 h-96 bg-soft-sage/20 dark:bg-soft-dark-sage/20 rounded-full blur-3xl"
           animate={{
             x: [0, 50, 0],
             y: [0, 30, 0],
@@ -52,7 +63,7 @@ export default function AdminLogin() {
           }}
         />
         <motion.div
-          className="absolute bottom-20 -right-20 w-96 h-96 bg-soft-blush/20 rounded-full blur-3xl"
+          className="absolute bottom-20 -right-20 w-96 h-96 bg-soft-blush/20 dark:bg-soft-dark-blush/20 rounded-full blur-3xl"
           animate={{
             x: [0, -50, 0],
             y: [0, -30, 0],
@@ -77,7 +88,7 @@ export default function AdminLogin() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/50 backdrop-blur-sm soft-shadow mb-4"
+              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/50 dark:bg-white/10 backdrop-blur-sm soft-shadow mb-4"
             >
               <Lock className="w-8 h-8 text-foreground/70" />
             </motion.div>
@@ -102,7 +113,7 @@ export default function AdminLogin() {
                   setPassword(e.target.value)
                   setError('')
                 }}
-                className="w-full px-4 py-3 rounded-xl bg-white/50 backdrop-blur-sm border border-foreground/10 text-foreground placeholder-foreground/40 focus:outline-none focus:ring-2 focus:ring-foreground/20 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-foreground/10 dark:border-foreground/20 text-foreground placeholder-foreground/40 focus:outline-none focus:ring-2 focus:ring-foreground/20 focus:border-transparent transition-all"
                 placeholder="Enter password"
                 autoFocus
               />

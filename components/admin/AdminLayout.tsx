@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { LogOut, Shield } from 'lucide-react'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -14,7 +15,7 @@ export function AdminLayout({ children, onLogout }: AdminLayoutProps) {
       {/* Background decorative elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <motion.div
-          className="absolute top-20 -left-20 w-96 h-96 bg-soft-sage/20 rounded-full blur-3xl"
+          className="absolute top-20 -left-20 w-96 h-96 bg-soft-sage/20 dark:bg-soft-dark-sage/20 rounded-full blur-3xl"
           animate={{
             x: [0, 50, 0],
             y: [0, 30, 0],
@@ -26,7 +27,7 @@ export function AdminLayout({ children, onLogout }: AdminLayoutProps) {
           }}
         />
         <motion.div
-          className="absolute bottom-20 -right-20 w-96 h-96 bg-soft-blush/20 rounded-full blur-3xl"
+          className="absolute bottom-20 -right-20 w-96 h-96 bg-soft-blush/20 dark:bg-soft-dark-blush/20 rounded-full blur-3xl"
           animate={{
             x: [0, -50, 0],
             y: [0, -30, 0],
@@ -48,7 +49,7 @@ export function AdminLayout({ children, onLogout }: AdminLayoutProps) {
           className="h-full glass-effect rounded-3xl p-6 soft-shadow flex flex-col"
         >
           <div className="flex items-center gap-3 mb-8">
-            <div className="p-2 rounded-xl bg-white/50 backdrop-blur-sm soft-shadow">
+            <div className="p-2 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm soft-shadow">
               <Shield className="w-5 h-5 text-foreground/70" />
             </div>
             <div>
@@ -59,15 +60,20 @@ export function AdminLayout({ children, onLogout }: AdminLayoutProps) {
 
           <div className="flex-1" />
 
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={onLogout}
-            className="w-full py-3 px-4 rounded-xl bg-white/50 backdrop-blur-sm soft-shadow hover:soft-shadow-hover transition-all flex items-center justify-center gap-2 text-foreground/70 hover:text-foreground"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </motion.button>
+          <div className="space-y-3">
+            <div className="flex justify-center">
+              <ThemeToggle />
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onLogout}
+              className="w-full py-3 px-4 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm soft-shadow hover:soft-shadow-hover transition-all flex items-center justify-center gap-2 text-foreground/70 hover:text-foreground"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </motion.button>
+          </div>
         </motion.div>
       </aside>
 
@@ -79,21 +85,24 @@ export function AdminLayout({ children, onLogout }: AdminLayoutProps) {
           className="glass-effect rounded-2xl p-4 soft-shadow flex items-center justify-between"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-white/50 backdrop-blur-sm soft-shadow">
+            <div className="p-2 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm soft-shadow">
               <Shield className="w-5 h-5 text-foreground/70" />
             </div>
             <div>
               <h2 className="font-serif text-lg font-bold text-foreground">Admin</h2>
             </div>
           </div>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onLogout}
-            className="p-2 rounded-xl bg-white/50 backdrop-blur-sm soft-shadow"
-          >
-            <LogOut className="w-5 h-5 text-foreground/70" />
-          </motion.button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onLogout}
+              className="p-2 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm soft-shadow"
+            >
+              <LogOut className="w-5 h-5 text-foreground/70" />
+            </motion.button>
+          </div>
         </motion.div>
       </header>
 

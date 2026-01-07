@@ -45,7 +45,7 @@ export function MenuCategory({ category, index }: MenuCategoryProps) {
         <motion.div
           whileHover={{ scale: 1.1, rotate: 5 }}
           transition={{ type: 'spring', stiffness: 300 }}
-          className="p-3 rounded-2xl bg-white/50 backdrop-blur-sm soft-shadow"
+          className="p-3 rounded-2xl bg-white/50 dark:bg-white/10 backdrop-blur-sm soft-shadow"
         >
           <Icon className="w-6 h-6 text-foreground/70" />
         </motion.div>

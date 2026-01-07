@@ -7,6 +7,11 @@
   --foreground: #2C2C2C;
 }
 
+.dark {
+  --background: #1F1B17;
+  --foreground: #F5F1E8;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -19,6 +24,11 @@ body {
   overflow-x: hidden;
   background: linear-gradient(135deg, #F5F1E8 0%, #E8E0D5 50%, #F5F1E8 100%);
   min-height: 100vh;
+}
+
+.dark html,
+.dark body {
+  background: linear-gradient(135deg, #1F1B17 0%, #2A2520 50%, #1F1B17 100%);
 }
 
 body {
@@ -38,6 +48,11 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.3);
   }
   
+  .dark .glass-effect {
+    background: rgba(42, 37, 32, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
   .soft-shadow {
     box-shadow: 
       0 8px 32px rgba(0, 0, 0, 0.06),
@@ -45,11 +60,25 @@ body {
       inset 0 1px 0 rgba(255, 255, 255, 0.8);
   }
   
+  .dark .soft-shadow {
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      0 4px 16px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  
   .soft-shadow-hover {
     box-shadow: 
       0 12px 48px rgba(0, 0, 0, 0.08),
       0 6px 24px rgba(0, 0, 0, 0.06),
       inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+  
+  .dark .soft-shadow-hover {
+    box-shadow: 
+      0 12px 48px rgba(0, 0, 0, 0.5),
+      0 6px 24px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 }
 

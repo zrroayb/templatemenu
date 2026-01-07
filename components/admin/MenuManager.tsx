@@ -126,7 +126,7 @@ export function MenuManager() {
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
                   selectedCategory === category.id
                     ? 'bg-foreground text-background'
-                    : 'bg-white/50 backdrop-blur-sm text-foreground/70 hover:text-foreground soft-shadow'
+                    : 'bg-white/50 dark:bg-white/10 backdrop-blur-sm text-foreground/70 hover:text-foreground soft-shadow'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -165,7 +165,7 @@ export function MenuManager() {
               </h3>
               <button
                 onClick={handleCancel}
-                className="p-2 rounded-xl bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-colors"
+                className="p-2 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-white/20 transition-colors"
               >
                 <X className="w-5 h-5 text-foreground/70" />
               </button>
@@ -180,7 +180,7 @@ export function MenuManager() {
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-white/50 backdrop-blur-sm border border-foreground/10 text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                  className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-foreground/10 dark:border-foreground/20 text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
                   placeholder="Item name"
                 />
               </div>
@@ -208,7 +208,7 @@ export function MenuManager() {
                     step="0.01"
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-white/50 backdrop-blur-sm border border-foreground/10 text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                    className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-foreground/10 dark:border-foreground/20 text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
                     placeholder="0.00"
                   />
                 </div>
@@ -221,7 +221,7 @@ export function MenuManager() {
                     type="text"
                     value={formData.tags}
                     onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-white/50 backdrop-blur-sm border border-foreground/10 text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                    className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-foreground/10 dark:border-foreground/20 text-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20"
                     placeholder="Vegetarian, Gluten Free"
                   />
                 </div>
@@ -241,7 +241,7 @@ export function MenuManager() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleCancel}
-                  className="px-6 py-3 rounded-xl bg-white/50 backdrop-blur-sm text-foreground/70 hover:text-foreground font-medium transition-colors soft-shadow"
+                  className="px-6 py-3 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm text-foreground/70 hover:text-foreground font-medium transition-colors soft-shadow"
                 >
                   Cancel
                 </motion.button>
@@ -283,7 +283,7 @@ export function MenuManager() {
                         {item.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="px-2 py-1 rounded-full text-xs font-medium bg-white/60 backdrop-blur-sm text-foreground/60 border border-foreground/10"
+                            className="px-2 py-1 rounded-full text-xs font-medium bg-white/60 dark:bg-white/10 backdrop-blur-sm text-foreground/60 dark:text-foreground/50 border border-foreground/10 dark:border-foreground/20"
                           >
                             {tag}
                           </span>
@@ -296,7 +296,7 @@ export function MenuManager() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => handleEdit(selectedCategory, item)}
-                      className="p-2 rounded-xl bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-colors"
+                      className="p-2 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-white/20 transition-colors"
                     >
                       <Edit2 className="w-4 h-4 text-foreground/70" />
                     </motion.button>
@@ -304,7 +304,7 @@ export function MenuManager() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => handleDelete(selectedCategory, item.id)}
-                      className="p-2 rounded-xl bg-white/50 backdrop-blur-sm hover:bg-red-500/20 transition-colors"
+                      className="p-2 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm hover:bg-red-500/20 dark:hover:bg-red-500/30 transition-colors"
                     >
                       <Trash2 className="w-4 h-4 text-red-500" />
                     </motion.button>
