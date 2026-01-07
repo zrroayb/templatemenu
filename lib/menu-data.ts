@@ -1,5 +1,19 @@
-// Centralized menu data store
-// In a real app, this would connect to a database/API
+// Centralized menu data store - Firestore-backed
+'use client'
+
+import { getDb } from './firebase'
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+} from 'firebase/firestore'
 
 export interface MenuItem {
   id: number
@@ -17,190 +31,72 @@ export interface MenuCategory {
   items: MenuItem[]
 }
 
-let menuData: MenuCategory[] = [
-  {
-    id: 'appetizers',
-    title: 'Appetizers',
-    icon: 'Leaf',
-    items: [
-      {
-        id: 1,
-        name: 'Truffle Arancini',
-        description: 'Crispy risotto balls with black truffle and parmesan, served with aioli',
-        price: 18,
-        tags: ['Vegetarian', 'Gluten Free'],
-        imageUrl: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=400&fit=crop&q=80',
-      },
-      {
-        id: 2,
-        name: 'Burrata & Prosciutto',
-        description: 'Creamy burrata with aged prosciutto, arugula, and balsamic reduction',
-        price: 22,
-        tags: [],
-        imageUrl: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400&h=400&fit=crop&q=80',
-      },
-      {
-        id: 3,
-        name: 'Crispy Artichoke Hearts',
-        description: 'Golden fried artichokes with lemon aioli and fresh herbs',
-        price: 16,
-        tags: ['Vegetarian'],
-        imageUrl: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=400&fit=crop&q=80',
-      },
-    ],
-  },
-  {
-    id: 'mains',
-    title: 'Main Courses',
-    icon: 'UtensilsCrossed',
-    items: [
-      {
-        id: 4,
-        name: 'Pan-Seared Salmon',
-        description: 'Atlantic salmon with roasted vegetables, quinoa, and herb butter',
-        price: 32,
-        tags: ['Gluten Free'],
-        imageUrl: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=400&fit=crop&q=80',
-      },
-      {
-        id: 5,
-        name: 'Wagyu Beef Tenderloin',
-        description: '8oz premium wagyu with truffle mashed potatoes and seasonal vegetables',
-        price: 68,
-        tags: [],
-        imageUrl: 'https://images.unsplash.com/photo-1558030006-450675393462?w=400&h=400&fit=crop&q=80',
-      },
-      {
-        id: 6,
-        name: 'Wild Mushroom Risotto',
-        description: 'Creamy arborio rice with wild mushrooms, parmesan, and white wine',
-        price: 26,
-        tags: ['Vegetarian'],
-        imageUrl: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&h=400&fit=crop&q=80',
-      },
-      {
-        id: 7,
-        name: 'Herb-Crusted Lamb Chops',
-        description: 'Three lamb chops with mint pesto, roasted root vegetables, and jus',
-        price: 42,
-        tags: [],
-        imageUrl: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=400&fit=crop&q=80',
-      },
-    ],
-  },
-  {
-    id: 'desserts',
-    title: 'Desserts',
-    icon: 'Sparkles',
-    items: [
-      {
-        id: 8,
-        name: 'Chocolate Soufflé',
-        description: 'Warm dark chocolate soufflé with vanilla ice cream',
-        price: 16,
-        tags: ['Vegetarian'],
-        imageUrl: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&h=400&fit=crop&q=80',
-      },
-      {
-        id: 9,
-        name: 'Lemon Tart',
-        description: 'Zesty lemon curd in a buttery shortcrust, with fresh berries',
-        price: 14,
-        tags: ['Vegetarian'],
-        imageUrl: 'https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=400&h=400&fit=crop&q=80',
-      },
-      {
-        id: 10,
-        name: 'Tiramisu',
-        description: 'Classic Italian dessert with espresso-soaked ladyfingers and mascarpone',
-        price: 15,
-        tags: ['Vegetarian'],
-        imageUrl: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&h=400&fit=crop&q=80',
-      },
-    ],
-  },
-  {
-    id: 'beverages',
-    title: 'Beverages',
-    icon: 'Coffee',
-    items: [
-      {
-        id: 11,
-        name: 'Signature Cocktails',
-        description: 'Curated selection of handcrafted cocktails',
-        price: 14,
-        tags: [],
-        imageUrl: 'https://images.unsplash.com/photo-1536935338788-846bb9981813?w=400&h=400&fit=crop&q=80',
-      },
-      {
-        id: 12,
-        name: 'Wine Selection',
-        description: 'Premium wines from renowned vineyards',
-        price: 12,
-        tags: [],
-        imageUrl: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=400&fit=crop&q=80',
-      },
-      {
-        id: 13,
-        name: 'Artisan Coffee',
-        description: 'Single-origin coffee, espresso, and specialty drinks',
-        price: 8,
-        tags: ['Vegetarian'],
-        imageUrl: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=400&fit=crop&q=80',
-      },
-    ],
-  },
-]
+// Firestore collections and operations
+const categoriesCol = () => collection(getDb(), 'categories')
+const itemsCol = (categoryId: string) => collection(getDb(), 'categories', categoryId, 'items')
 
-export function getMenuData(): MenuCategory[] {
-  return menuData
+export async function getMenuData(): Promise<MenuCategory[]> {
+  const catsSnap = await getDocs(query(categoriesCol(), orderBy('title', 'asc')))
+  const categories: MenuCategory[] = []
+  for (const catDoc of catsSnap.docs) {
+    const catId = catDoc.id
+    const cat = catDoc.data() as Omit<MenuCategory, 'items'>
+    const itemsSnap = await getDocs(query(itemsCol(catId), orderBy('name', 'asc')))
+    const items: MenuItem[] = itemsSnap.docs.map(d => d.data() as MenuItem)
+    categories.push({
+      id: catId,
+      title: cat.title,
+      icon: cat.icon,
+      items,
+    })
+  }
+  return categories
 }
 
-export function setMenuData(data: MenuCategory[]): void {
-  menuData = data
-  // In a real app, this would save to a database
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('menuData', JSON.stringify(data))
-  }
+// Category CRUD
+export async function addCategory(category: Omit<MenuCategory, 'items'>): Promise<void> {
+  const ref = doc(categoriesCol(), category.id)
+  await setDoc(ref, { title: category.title, icon: category.icon })
 }
 
-export function addMenuItem(categoryId: string, item: Omit<MenuItem, 'id'>): void {
-  const category = menuData.find(cat => cat.id === categoryId)
-  if (category) {
-    const newId = Math.max(...menuData.flatMap(cat => cat.items.map(i => i.id)), 0) + 1
-    category.items.push({ ...item, id: newId })
-    setMenuData([...menuData])
-  }
+export async function updateCategory(categoryId: string, updates: Partial<Omit<MenuCategory, 'id' | 'items'>>): Promise<void> {
+  const ref = doc(categoriesCol(), categoryId)
+  const snap = await getDoc(ref)
+  if (!snap.exists()) return
+  await updateDoc(ref, updates as any)
 }
 
-export function updateMenuItem(categoryId: string, itemId: number, updates: Partial<MenuItem>): void {
-  const category = menuData.find(cat => cat.id === categoryId)
-  if (category) {
-    const itemIndex = category.items.findIndex(item => item.id === itemId)
-    if (itemIndex !== -1) {
-      category.items[itemIndex] = { ...category.items[itemIndex], ...updates }
-      setMenuData([...menuData])
-    }
-  }
+export async function deleteCategory(categoryId: string): Promise<void> {
+  // Delete items in subcollection first (simple iteration)
+  const snap = await getDocs(itemsCol(categoryId))
+  await Promise.all(snap.docs.map(d => deleteDoc(d.ref)))
+  await deleteDoc(doc(categoriesCol(), categoryId))
 }
 
-export function deleteMenuItem(categoryId: string, itemId: number): void {
-  const category = menuData.find(cat => cat.id === categoryId)
-  if (category) {
-    category.items = category.items.filter(item => item.id !== itemId)
-    setMenuData([...menuData])
-  }
+// Item CRUD
+export async function addMenuItem(categoryId: string, item: Omit<MenuItem, 'id'>): Promise<void> {
+  const id = Date.now()
+  await setDoc(doc(itemsCol(categoryId), String(id)), { ...item, id })
 }
 
-// Load from localStorage on init
-if (typeof window !== 'undefined') {
-  const saved = localStorage.getItem('menuData')
-  if (saved) {
-    try {
-      menuData = JSON.parse(saved)
-    } catch (e) {
-      console.error('Failed to load menu data from localStorage', e)
-    }
-  }
+export async function updateMenuItem(categoryId: string, itemId: number, updates: Partial<MenuItem>): Promise<void> {
+  const q = query(itemsCol(categoryId), where('id', '==', itemId))
+  const snap = await getDocs(q)
+  const docRef = snap.docs[0]?.ref
+  if (!docRef) return
+  await updateDoc(docRef, updates as any)
+}
+
+export async function deleteMenuItem(categoryId: string, itemId: number): Promise<void> {
+  const q = query(itemsCol(categoryId), where('id', '==', itemId))
+  const snap = await getDocs(q)
+  const docRef = snap.docs[0]?.ref
+  if (!docRef) return
+  await deleteDoc(docRef)
+}
+
+// Backwards-compat no-op (kept to avoid breaking imports)
+export function setMenuData(_: MenuCategory[]): void {
+  // no-op; Firestore is the source of truth
 }
 

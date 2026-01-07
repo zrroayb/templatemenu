@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Edit2, Trash2, X, Save } from 'lucide-react'
-import { getMenuData, setMenuData, type MenuCategory } from '@/lib/menu-data'
+import { getMenuData, addCategory, updateCategory, deleteCategory, type MenuCategory } from '@/lib/menu-data'
 import { Leaf, Sparkles, Coffee, UtensilsCrossed, type LucideIcon } from 'lucide-react'
 
 const availableIcons: { name: string; icon: LucideIcon }[] = [
@@ -25,10 +25,11 @@ export function CategoryManager() {
 
   useEffect(() => {
     loadCategories()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const loadCategories = () => {
-    const data = getMenuData()
+  const loadCategories = async () => {
+    const data = await getMenuData()
     setCategories(data)
   }
 
@@ -47,41 +48,31 @@ export function CategoryManager() {
     setIsAdding(false)
   }
 
-  const handleSave = () => {
-    const updatedCategories = [...categories]
-
+  const handleSave = async () => {
     if (editingCategory) {
-      const index = updatedCategories.findIndex(cat => cat.id === editingCategory.id)
-      if (index !== -1) {
-        updatedCategories[index] = {
-          ...updatedCategories[index],
-          title: formData.title,
-          icon: formData.icon,
-        }
-      }
+      await updateCategory(editingCategory.id, {
+        title: formData.title,
+        icon: formData.icon,
+      })
     } else {
-      // Generate ID from title
       const newId = formData.title.toLowerCase().replace(/\s+/g, '-')
-      updatedCategories.push({
+      await addCategory({
         id: newId,
         title: formData.title,
         icon: formData.icon,
-        items: [],
-      })
+      } as any)
     }
 
-    setMenuData(updatedCategories)
-    loadCategories()
+    await loadCategories()
     setEditingCategory(null)
     setIsAdding(false)
     setFormData({ id: '', title: '', icon: 'Leaf' })
   }
 
-  const handleDelete = (categoryId: string) => {
+  const handleDelete = async (categoryId: string) => {
     if (confirm('Are you sure you want to delete this category? All items in it will be deleted.')) {
-      const updatedCategories = categories.filter(cat => cat.id !== categoryId)
-      setMenuData(updatedCategories)
-      loadCategories()
+      await deleteCategory(categoryId)
+      await loadCategories()
     }
   }
 

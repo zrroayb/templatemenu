@@ -28,8 +28,8 @@ export default function AdminDashboard() {
     }
   }, [router])
 
-  const updateStats = () => {
-    const menuData = getMenuData()
+  const updateStats = async () => {
+    const menuData = await getMenuData()
     const totalItems = menuData.reduce((sum, cat) => sum + cat.items.length, 0)
     const categories = menuData.length
     const allPrices = menuData.flatMap(cat => cat.items.map(item => item.price))
@@ -43,7 +43,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (isAuthenticated) {
       updateStats()
-      const interval = setInterval(updateStats, 1000)
+      const interval = setInterval(updateStats, 1500)
       return () => clearInterval(interval)
     }
   }, [isAuthenticated])

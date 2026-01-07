@@ -11,21 +11,14 @@ export default function Home() {
   const [menuData, setMenuData] = useState<MenuCategoryType[]>([])
 
   useEffect(() => {
-    setMenuData(getMenuData())
-    
-    // Listen for storage changes to update menu in real-time
-    const handleStorageChange = () => {
-      setMenuData(getMenuData())
+    const load = async () => {
+      const data = await getMenuData()
+      setMenuData(data)
     }
-    window.addEventListener('storage', handleStorageChange)
-    
-    // Poll for changes (in a real app, use proper state management)
-    const interval = setInterval(() => {
-      setMenuData(getMenuData())
-    }, 1000)
+    load()
+    const interval = setInterval(load, 1500)
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange)
       clearInterval(interval)
     }
   }, [])

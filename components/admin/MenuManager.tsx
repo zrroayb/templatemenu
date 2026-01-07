@@ -34,10 +34,11 @@ export function MenuManager() {
 
   useEffect(() => {
     loadMenuData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const loadMenuData = () => {
-    const data = getMenuData()
+  const loadMenuData = async () => {
+    const data = await getMenuData()
     setCategories(data)
     if (data.length > 0 && (!selectedCategory || !data.find(cat => cat.id === selectedCategory))) {
       setSelectedCategory(data[0].id)
@@ -61,7 +62,7 @@ export function MenuManager() {
     setIsAdding(false)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!selectedCategory) return
 
     const tags = formData.tags
@@ -70,14 +71,14 @@ export function MenuManager() {
       .filter(tag => tag.length > 0)
 
     if (editingItem) {
-      updateMenuItem(editingItem.categoryId, editingItem.item.id, {
+      await updateMenuItem(editingItem.categoryId, editingItem.item.id, {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
         tags,
       })
     } else {
-      addMenuItem(selectedCategory, {
+      await addMenuItem(selectedCategory, {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
@@ -85,16 +86,16 @@ export function MenuManager() {
       })
     }
 
-    loadMenuData()
+    await loadMenuData()
     setEditingItem(null)
     setIsAdding(false)
     setFormData({ name: '', description: '', price: '', tags: '' })
   }
 
-  const handleDelete = (categoryId: string, itemId: number) => {
+  const handleDelete = async (categoryId: string, itemId: number) => {
     if (confirm('Are you sure you want to delete this item?')) {
-      deleteMenuItem(categoryId, itemId)
-      loadMenuData()
+      await deleteMenuItem(categoryId, itemId)
+      await loadMenuData()
     }
   }
 
