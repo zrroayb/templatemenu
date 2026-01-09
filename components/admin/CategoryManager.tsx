@@ -17,6 +17,9 @@ export function CategoryManager() {
   const [categories, setCategories] = useState<MenuCategory[]>([])
   const [editingCategory, setEditingCategory] = useState<MenuCategory | null>(null)
   const [isAdding, setIsAdding] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     id: '',
     title: '',
@@ -49,30 +52,74 @@ export function CategoryManager() {
   }
 
   const handleSave = async () => {
-    if (editingCategory) {
-      await updateCategory(editingCategory.id, {
-        title: formData.title,
-        icon: formData.icon,
-      })
-    } else {
-      const newId = formData.title.toLowerCase().replace(/\s+/g, '-')
-      await addCategory({
-        id: newId,
-        title: formData.title,
-        icon: formData.icon,
-      } as any)
+    // Validation
+    if (!formData.title.trim()) {
+      setError('Category name is required')
+      setTimeout(() => setError(null), 3000)
+      return
     }
 
-    await loadCategories()
+    setIsLoading(true)
+    setError(null)
+    setSuccess(null)
+
+    try {
+    if (editingCategory) {
+        await updateCategory(editingCategory.id, {
+          title: formData.title.trim(),
+          icon: formData.icon,
+        })
+        setSuccess('Category updated successfully!')
+      } else {
+        const newId = formData.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+        if (!newId) {
+          setError('Invalid category name. Please use letters, numbers, and spaces only.')
+          setIsLoading(false)
+          setTimeout(() => setError(null), 3000)
+          return
+        }
+        
+        await addCategory({
+        id: newId,
+          title: formData.title.trim(),
+        icon: formData.icon,
+      })
+        setSuccess('Category added successfully!')
+    }
+
+      await loadCategories()
     setEditingCategory(null)
     setIsAdding(false)
     setFormData({ id: '', title: '', icon: 'Leaf' })
+      
+      setTimeout(() => setSuccess(null), 3000)
+    } catch (err: any) {
+      console.error('Error saving category:', err)
+      setError(err.message || 'Failed to save category. Please try again.')
+      setTimeout(() => setError(null), 5000)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleDelete = async (categoryId: string) => {
     if (confirm('Are you sure you want to delete this category? All items in it will be deleted.')) {
-      await deleteCategory(categoryId)
-      await loadCategories()
+      setIsLoading(true)
+      setError(null)
+      setSuccess(null)
+      
+      try {
+        await deleteCategory(categoryId)
+        await loadCategories()
+        setSuccess('Category deleted successfully!')
+        setTimeout(() => setSuccess(null), 3000)
+      } catch (err: any) {
+        console.error('Error deleting category:', err)
+        setError(err.message || 'Failed to delete category. Please try again.')
+        setTimeout(() => setError(null), 5000)
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
@@ -84,12 +131,37 @@ export function CategoryManager() {
 
   return (
     <div className="space-y-6">
+      {/* Success Message */}
+      {success && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
+        >
+          <p className="text-green-700 dark:text-green-300 font-medium">{success}</p>
+        </motion.div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
+        >
+          <p className="text-red-700 dark:text-red-300 font-medium">{error}</p>
+        </motion.div>
+      )}
+
       {/* Add Button */}
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={handleAdd}
-        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors soft-shadow"
+        disabled={isLoading || isAdding}
+        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors soft-shadow disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Plus className="w-5 h-5" />
         Add New Category
@@ -158,10 +230,20 @@ export function CategoryManager() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleSave}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors soft-shadow"
+                  disabled={isLoading || !formData.title.trim()}
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors soft-shadow disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Save className="w-4 h-4" />
-                  Save
+                  {isLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      Save
+                    </>
+                  )}
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.02 }}

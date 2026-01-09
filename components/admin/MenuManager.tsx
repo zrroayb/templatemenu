@@ -25,6 +25,9 @@ export function MenuManager() {
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [editingItem, setEditingItem] = useState<{ categoryId: string; item: MenuItem } | null>(null)
   const [isAdding, setIsAdding] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -63,39 +66,85 @@ export function MenuManager() {
   }
 
   const handleSave = async () => {
-    if (!selectedCategory) return
-
-    const tags = formData.tags
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0)
-
-    if (editingItem) {
-      await updateMenuItem(editingItem.categoryId, editingItem.item.id, {
-        name: formData.name,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        tags,
-      })
-    } else {
-      await addMenuItem(selectedCategory, {
-        name: formData.name,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        tags,
-      })
+    if (!selectedCategory) {
+      setError('Please select a category first')
+      setTimeout(() => setError(null), 3000)
+      return
     }
 
-    await loadMenuData()
-    setEditingItem(null)
-    setIsAdding(false)
-    setFormData({ name: '', description: '', price: '', tags: '' })
+    // Validation
+    if (!formData.name.trim()) {
+      setError('Item name is required')
+      setTimeout(() => setError(null), 3000)
+      return
+    }
+
+    if (!formData.price || isNaN(parseFloat(formData.price)) || parseFloat(formData.price) <= 0) {
+      setError('Please enter a valid price')
+      setTimeout(() => setError(null), 3000)
+      return
+    }
+
+    setIsLoading(true)
+    setError(null)
+    setSuccess(null)
+
+    try {
+      const tags = formData.tags
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0)
+
+      if (editingItem) {
+        await updateMenuItem(editingItem.categoryId, editingItem.item.id, {
+          name: formData.name.trim(),
+          description: formData.description.trim(),
+          price: parseFloat(formData.price),
+          tags,
+        })
+        setSuccess('Item updated successfully!')
+      } else {
+        await addMenuItem(selectedCategory, {
+          name: formData.name.trim(),
+          description: formData.description.trim(),
+          price: parseFloat(formData.price),
+          tags,
+        })
+        setSuccess('Item added successfully!')
+      }
+
+      await loadMenuData()
+      setEditingItem(null)
+      setIsAdding(false)
+      setFormData({ name: '', description: '', price: '', tags: '' })
+      setTimeout(() => setSuccess(null), 3000)
+    } catch (err: any) {
+      console.error('Error saving item:', err)
+      setError(err.message || 'Failed to save item. Please try again.')
+      setTimeout(() => setError(null), 5000)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleDelete = async (categoryId: string, itemId: number) => {
     if (confirm('Are you sure you want to delete this item?')) {
-      await deleteMenuItem(categoryId, itemId)
-      await loadMenuData()
+      setIsLoading(true)
+      setError(null)
+      setSuccess(null)
+      
+      try {
+        await deleteMenuItem(categoryId, itemId)
+        await loadMenuData()
+        setSuccess('Item deleted successfully!')
+        setTimeout(() => setSuccess(null), 3000)
+      } catch (err: any) {
+        console.error('Error deleting item:', err)
+        setError(err.message || 'Failed to delete item. Please try again.')
+        setTimeout(() => setError(null), 5000)
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
@@ -110,6 +159,30 @@ export function MenuManager() {
 
   return (
     <div className="space-y-6">
+      {/* Success Message */}
+      {success && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
+        >
+          <p className="text-green-700 dark:text-green-300 font-medium">{success}</p>
+        </motion.div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
+        >
+          <p className="text-red-700 dark:text-red-300 font-medium">{error}</p>
+        </motion.div>
+      )}
+
       {/* Category Selector */}
       <div className="glass-effect rounded-3xl p-6 soft-shadow">
         <label className="block text-sm font-medium text-foreground/70 mb-3">
@@ -144,7 +217,8 @@ export function MenuManager() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleAdd}
-          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors soft-shadow"
+          disabled={isLoading}
+          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors soft-shadow disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="w-5 h-5" />
           Add New Item
@@ -233,10 +307,20 @@ export function MenuManager() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleSave}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors soft-shadow"
+                  disabled={isLoading || !formData.name.trim() || !formData.price}
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors soft-shadow disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Save className="w-4 h-4" />
-                  Save
+                  {isLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      Save
+                    </>
+                  )}
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
