@@ -34,9 +34,27 @@ export interface MenuItem {
 
 export interface MenuCategory {
   id: string
-  title: string | Translations // Backwards compatible: string or Translations object
+  title: string | Translations // Backwards compatible: string or Translations object (raw from Firebase)
   icon: string
   items: MenuItem[]
+}
+
+// Returned category from getMenuData is always translated to string
+export interface TranslatedMenuCategory {
+  id: string
+  title: string // Always translated to current language
+  icon: string
+  items: TranslatedMenuItem[]
+}
+
+export interface TranslatedMenuItem {
+  id: number
+  name: string // Always translated to current language
+  description: string // Always translated to current language
+  price: number
+  tags: string[] // Always translated to current language
+  imageUrl?: string
+  order?: number
 }
 
 // Firestore collections and operations
@@ -56,10 +74,10 @@ function getTranslatedTags(tags: string[] | { [key: string]: string[] } | undefi
   return tags[language] || tags.en || tags.tr || tags.ru || []
 }
 
-export async function getMenuData(language: Language = 'en'): Promise<MenuCategory[]> {
+export async function getMenuData(language: Language = 'en'): Promise<TranslatedMenuCategory[]> {
   // Get all categories - can't order by title if it's an object, so we'll sort after
   const catsSnap = await getDocs(categoriesCol())
-  const categories: MenuCategory[] = []
+  const categories: TranslatedMenuCategory[] = []
   
   for (const catDoc of catsSnap.docs) {
     const catId = catDoc.id
@@ -81,31 +99,63 @@ export async function getMenuData(language: Language = 'en'): Promise<MenuCatego
       return nameA.localeCompare(nameB)
     })
     
-    // Get translated category title
+    // Get translated category title (always returns string)
     const translatedTitle = getTranslatedText(catTitle, language, catId)
     
-    // Map items with translations
-    const translatedItems: MenuItem[] = itemsRaw.map(item => ({
-      ...item,
+    // Map items with translations (always returns strings)
+    const translatedItems: TranslatedMenuItem[] = itemsRaw.map(item => ({
+      id: item.id,
       name: getTranslatedText(item.name, language, ''),
       description: getTranslatedText(item.description, language, ''),
+      price: item.price,
       tags: getTranslatedTags(item.tags, language),
+      imageUrl: item.imageUrl,
+      order: item.order,
     }))
     
     categories.push({
       id: catId,
-      title: translatedTitle,
+      title: translatedTitle, // Always string after translation
       icon: catData.icon,
       items: translatedItems,
     })
   }
   
-  // Sort categories by translated title
-  categories.sort((a, b) => {
-    const titleA = typeof a.title === 'string' ? a.title : a.title[language] || a.title.en || ''
-    const titleB = typeof b.title === 'string' ? b.title : b.title[language] || b.title.en || ''
-    return titleA.localeCompare(titleB)
-  })
+  // Sort categories by translated title (already strings)
+  categories.sort((a, b) => a.title.localeCompare(b.title))
+  
+  return categories
+}
+
+// Get raw menu data (untranslated) - for admin panel
+export async function getRawMenuData(): Promise<MenuCategory[]> {
+  const catsSnap = await getDocs(categoriesCol())
+  const categories: MenuCategory[] = []
+  
+  for (const catDoc of catsSnap.docs) {
+    const catId = catDoc.id
+    const catData = catDoc.data()
+    
+    const itemsSnap = await getDocs(itemsCol(catId))
+    const items: MenuItem[] = itemsSnap.docs.map(d => d.data() as MenuItem)
+    
+    // Sort by order
+    items.sort((a, b) => {
+      if (a.order !== undefined && b.order !== undefined) {
+        return a.order - b.order
+      }
+      if (a.order !== undefined) return -1
+      if (b.order !== undefined) return 1
+      return 0
+    })
+    
+    categories.push({
+      id: catId,
+      title: catData.title as string | Translations,
+      icon: catData.icon,
+      items,
+    })
+  }
   
   return categories
 }

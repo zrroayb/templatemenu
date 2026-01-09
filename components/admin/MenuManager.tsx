@@ -10,6 +10,7 @@ import {
   deleteMenuItem,
   type MenuItem,
   type MenuCategory,
+  type TranslatedMenuCategory,
 } from '@/lib/menu-data'
 import { Leaf, Sparkles, Coffee, UtensilsCrossed } from 'lucide-react'
 
@@ -21,7 +22,7 @@ const iconMap: Record<string, any> = {
 }
 
 export function MenuManager() {
-  const [categories, setCategories] = useState<MenuCategory[]>([])
+  const [categories, setCategories] = useState<TranslatedMenuCategory[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [editingItem, setEditingItem] = useState<{ categoryId: string; item: MenuItem } | null>(null)
   const [isAdding, setIsAdding] = useState(false)
@@ -41,7 +42,7 @@ export function MenuManager() {
   }, [])
 
   const loadMenuData = async () => {
-    const data = await getMenuData()
+    const data = await getMenuData('en') // Load with English for admin
     setCategories(data)
     if (data.length > 0 && (!selectedCategory || !data.find(cat => cat.id === selectedCategory))) {
       setSelectedCategory(data[0].id)
@@ -54,13 +55,21 @@ export function MenuManager() {
     setFormData({ name: '', description: '', price: '', tags: '' })
   }
 
-  const handleEdit = (categoryId: string, item: MenuItem) => {
+  const handleEdit = (categoryId: string, item: any) => {
+    // In MenuManager, items from TranslatedMenuCategory are TranslatedMenuItem (name/description/tags are strings)
+    // But we need to handle both types for backwards compatibility
     setEditingItem({ categoryId, item })
+    
+    const nameStr = typeof item.name === 'string' ? item.name : (item.name as any)?.en || item.name?.tr || item.name?.ru || ''
+    const descStr = typeof item.description === 'string' ? item.description : (item.description as any)?.en || item.description?.tr || item.description?.ru || ''
+    const tagsArray = Array.isArray(item.tags) ? item.tags : (item.tags as any)?.en || (item.tags as any)?.tr || (item.tags as any)?.ru || []
+    const tagsStr = tagsArray.join(', ')
+    
     setFormData({
-      name: item.name,
-      description: item.description,
+      name: nameStr,
+      description: descStr,
       price: item.price.toString(),
-      tags: item.tags.join(', '),
+      tags: tagsStr,
     })
     setIsAdding(false)
   }
@@ -154,7 +163,7 @@ export function MenuManager() {
     setFormData({ name: '', description: '', price: '', tags: '' })
   }
 
-  const currentCategory = categories.find(cat => cat.id === selectedCategory)
+  const currentCategory: TranslatedMenuCategory | undefined = categories.find(cat => cat.id === selectedCategory)
   const availableTags = ['Vegetarian', 'Gluten Free', 'Vegan', 'Spicy', 'Dairy Free']
 
   return (
@@ -191,6 +200,8 @@ export function MenuManager() {
         <div className="flex flex-wrap gap-3">
           {categories.map((category) => {
             const Icon = iconMap[category.icon] || Leaf
+            // category.title is always string in TranslatedMenuCategory
+            const displayTitle = category.title
             return (
               <motion.button
                 key={category.id}
@@ -204,7 +215,7 @@ export function MenuManager() {
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                {category.title}
+                {displayTitle}
               </motion.button>
             )
           })}

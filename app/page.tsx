@@ -6,7 +6,7 @@ import { MenuItem } from '@/components/MenuItem'
 import { MenuCategory } from '@/components/MenuCategory'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { LanguageSelector } from '@/components/LanguageSelector'
-import { getMenuData, type MenuCategory as MenuCategoryType } from '@/lib/menu-data'
+import { getMenuData, type TranslatedMenuCategory as MenuCategoryType } from '@/lib/menu-data'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { Leaf, Sparkles, Coffee, UtensilsCrossed, type LucideIcon } from 'lucide-react'
 

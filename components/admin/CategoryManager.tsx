@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Edit2, Trash2, X, Save, ChevronDown, ChevronUp, GripVertical, ArrowUp, ArrowDown } from 'lucide-react'
 import { 
-  getMenuData, 
+  getMenuData,
+  getRawMenuData, 
   addCategory, 
   updateCategory, 
   deleteCategory, 
@@ -54,8 +55,8 @@ export function CategoryManager() {
   }, [])
 
   const loadCategories = async () => {
-    // Load with English by default for admin panel (you can change this)
-    const data = await getMenuData('en')
+    // Load raw data (untranslated) for admin panel so we can edit all languages
+    const data = await getRawMenuData()
     setCategories(data)
   }
 
@@ -609,6 +610,11 @@ export function CategoryManager() {
             const isExpanded = expandedCategories.has(category.id)
             const isAddingItemToThis = isAddingItem === category.id
             const isEditingItemInThis = editingItem?.categoryId === category.id
+            
+            // Get display title - can be string or Translations object
+            const displayTitle = typeof category.title === 'string' 
+              ? category.title 
+              : category.title.en || category.title.tr || category.title.ru || category.id
 
             return (
               <motion.div
@@ -631,9 +637,9 @@ export function CategoryManager() {
                         <IconComponent className="w-6 h-6 text-foreground/70" />
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-serif text-xl font-semibold text-foreground mb-1">
-                          {category.title}
-                        </h4>
+                      <h4 className="font-serif text-xl font-semibold text-foreground mb-1">
+                        {displayTitle}
+                      </h4>
                         <p className="text-sm text-foreground/50">
                           {category.items.length} item{category.items.length !== 1 ? 's' : ''}
                         </p>
@@ -685,7 +691,7 @@ export function CategoryManager() {
                           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-foreground/10 dark:bg-foreground/20 text-foreground font-medium hover:bg-foreground/20 dark:hover:bg-foreground/30 transition-colors soft-shadow disabled:opacity-50 disabled:cursor-not-allowed w-full"
                         >
                           <Plus className="w-4 h-4" />
-                          Add Item to {category.title}
+                          Add Item to {displayTitle}
                         </motion.button>
 
                         {/* Item Form */}
@@ -904,7 +910,21 @@ export function CategoryManager() {
                           </div>
                         ) : (
                           <div className="space-y-2">
-                            {category.items.map((item, itemIndex) => (
+                            {category.items.map((item, itemIndex) => {
+                              // Get display values - can be string or Translations object
+                              const displayName = typeof item.name === 'string' 
+                                ? item.name 
+                                : item.name.en || item.name.tr || item.name.ru || ''
+                              
+                              const displayDescription = typeof item.description === 'string'
+                                ? item.description
+                                : item.description.en || item.description.tr || item.description.ru || ''
+                              
+                              const displayTags = Array.isArray(item.tags)
+                                ? item.tags
+                                : item.tags.en || item.tags.tr || item.tags.ru || []
+                              
+                              return (
                               <motion.div
                                 key={item.id}
                                 draggable
@@ -947,22 +967,22 @@ export function CategoryManager() {
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-start justify-between mb-1">
                                       <h5 className="font-serif text-base font-semibold text-foreground">
-                                        {item.name}
+                                        {displayName}
                                       </h5>
                                       <span className="font-serif text-base font-bold text-foreground ml-2">
                                         ${item.price.toFixed(2)}
                                       </span>
                                     </div>
-                                    {item.description && (
+                                    {displayDescription && (
                                       <p className="text-foreground/60 text-xs mb-2 line-clamp-2">
-                                        {item.description}
+                                        {displayDescription}
                                       </p>
                                     )}
-                                    {item.tags.length > 0 && (
+                                    {displayTags.length > 0 && (
                                       <div className="flex flex-wrap gap-1.5">
-                                        {item.tags.map((tag) => (
+                                        {displayTags.map((tag, tagIndex) => (
                                           <span
-                                            key={tag}
+                                            key={tagIndex}
                                             className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-white/60 dark:bg-white/10 backdrop-blur-sm text-foreground/60 dark:text-foreground/50 border border-foreground/10 dark:border-foreground/20"
                                           >
                                             {tag}
@@ -992,7 +1012,8 @@ export function CategoryManager() {
                                   </div>
                                 </div>
                               </motion.div>
-                            ))}
+                              )
+                            })}
                           </div>
                         )}
                       </div>
