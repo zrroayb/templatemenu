@@ -126,3 +126,4 @@ NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789012:web:abcdef1234567890
 - Dev server'ı yeniden başlattığınızdan emin olun
 - Firebase Console'da Firestore Database'in aktif olduğunu kontrol edin
 
+

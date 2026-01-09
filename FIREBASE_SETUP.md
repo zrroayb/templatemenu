@@ -26,3 +26,4 @@ NEXT_PUBLIC_FIREBASE_APP_ID=...
 That's it. Run dev after setting env: `npm run dev`
 
 
+

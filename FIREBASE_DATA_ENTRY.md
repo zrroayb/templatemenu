@@ -175,3 +175,4 @@ Başlangıç için örnek veriler:
 - Tarayıcı konsolunda hata var mı kontrol edin
 - Firebase Console'da verilerin doğru yapıda olduğundan emin olun
 
+
