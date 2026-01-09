@@ -17,6 +17,8 @@ export function CategoryManager() {
   const [categories, setCategories] = useState<MenuCategory[]>([])
   const [editingCategory, setEditingCategory] = useState<MenuCategory | null>(null)
   const [isAdding, setIsAdding] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     id: '',
     title: '',
@@ -35,11 +37,13 @@ export function CategoryManager() {
 
   const handleAdd = () => {
     setIsAdding(true)
+    setError(null)
     setFormData({ id: '', title: '', icon: 'Leaf' })
   }
 
   const handleEdit = (category: MenuCategory) => {
     setEditingCategory(category)
+    setError(null)
     setFormData({
       id: category.id,
       title: category.title,
@@ -49,24 +53,38 @@ export function CategoryManager() {
   }
 
   const handleSave = async () => {
-    if (editingCategory) {
-      await updateCategory(editingCategory.id, {
-        title: formData.title,
-        icon: formData.icon,
-      })
-    } else {
-      const newId = formData.title.toLowerCase().replace(/\s+/g, '-')
-      await addCategory({
-        id: newId,
-        title: formData.title,
-        icon: formData.icon,
-      } as any)
+    const trimmedTitle = formData.title.trim()
+    if (!trimmedTitle) {
+      setError('Category name is required.')
+      return
     }
 
-    await loadCategories()
-    setEditingCategory(null)
-    setIsAdding(false)
-    setFormData({ id: '', title: '', icon: 'Leaf' })
+    setIsSaving(true)
+    setError(null)
+
+    try {
+      if (editingCategory) {
+        await updateCategory(editingCategory.id, {
+          title: trimmedTitle,
+          icon: formData.icon,
+        })
+      } else {
+        await addCategory({
+          title: trimmedTitle,
+          icon: formData.icon,
+        })
+      }
+
+      await loadCategories()
+      setEditingCategory(null)
+      setIsAdding(false)
+      setFormData({ id: '', title: '', icon: 'Leaf' })
+    } catch (err) {
+      console.error(err)
+      setError('Failed to save category. Check Firebase configuration and rules.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleDelete = async (categoryId: string) => {
@@ -79,6 +97,7 @@ export function CategoryManager() {
   const handleCancel = () => {
     setEditingCategory(null)
     setIsAdding(false)
+    setError(null)
     setFormData({ id: '', title: '', icon: 'Leaf' })
   }
 
@@ -117,6 +136,11 @@ export function CategoryManager() {
             </div>
 
             <div className="space-y-4">
+              {error && (
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+                  {error}
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-foreground/70 mb-2">
                   Category Name
@@ -158,10 +182,11 @@ export function CategoryManager() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleSave}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors soft-shadow"
+                  disabled={isSaving}
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors soft-shadow disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <Save className="w-4 h-4" />
-                  Save
+                  {isSaving ? 'Saving...' : 'Save'}
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -235,4 +260,3 @@ export function CategoryManager() {
     </div>
   )
 }
-
