@@ -54,8 +54,9 @@ export async function getMenuData(): Promise<MenuCategory[]> {
 }
 
 // Category CRUD
-export async function addCategory(category: Omit<MenuCategory, 'items'>): Promise<void> {
-  const ref = doc(categoriesCol(), category.id)
+export async function addCategory(category: Omit<MenuCategory, 'items'> & { id?: string }): Promise<void> {
+  const trimmedId = category.id?.trim()
+  const ref = trimmedId ? doc(categoriesCol(), trimmedId) : doc(categoriesCol())
   await setDoc(ref, { title: category.title, icon: category.icon })
 }
 
@@ -99,4 +100,3 @@ export async function deleteMenuItem(categoryId: string, itemId: number): Promis
 export function setMenuData(_: MenuCategory[]): void {
   // no-op; Firestore is the source of truth
 }
-
