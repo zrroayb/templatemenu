@@ -64,7 +64,7 @@ export function CategoryManager() {
     setSuccess(null)
 
     try {
-    if (editingCategory) {
+      if (editingCategory) {
         await updateCategory(editingCategory.id, {
           title: formData.title.trim(),
           icon: formData.icon,
@@ -80,17 +80,17 @@ export function CategoryManager() {
         }
         
         await addCategory({
-        id: newId,
+          id: newId,
           title: formData.title.trim(),
-        icon: formData.icon,
-      })
+          icon: formData.icon,
+        })
         setSuccess('Category added successfully!')
-    }
+      }
 
       await loadCategories()
-    setEditingCategory(null)
-    setIsAdding(false)
-    setFormData({ id: '', title: '', icon: 'Leaf' })
+      setEditingCategory(null)
+      setIsAdding(false)
+      setFormData({ id: '', title: '', icon: 'Leaf' })
       
       setTimeout(() => setSuccess(null), 3000)
     } catch (err: any) {
