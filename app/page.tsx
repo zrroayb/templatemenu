@@ -21,15 +21,29 @@ export default function Home() {
   const { language, t } = useLanguage()
   const [menuData, setMenuData] = useState<MenuCategoryType[]>([])
   const [activeCategory, setActiveCategory] = useState<string>('')
+  const [error, setError] = useState<string | null>(null)
   const categoryRefs = useRef<{ [key: string]: HTMLElement | null }>({})
 
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return
+
     const load = async () => {
-      const data = await getMenuData(language)
-      setMenuData(data)
-      // Set first category as active initially
-      if (data.length > 0 && !activeCategory) {
-        setActiveCategory(data[0].id)
+      try {
+        setError(null)
+        const data = await getMenuData(language)
+        setMenuData(data)
+        // Set first category as active initially
+        if (data.length > 0 && !activeCategory) {
+          setActiveCategory(data[0].id)
+        }
+        // If no data and no error was thrown, show helpful message
+        if (data.length === 0) {
+          console.warn('⚠️ No menu data found. Please check Firebase configuration and ensure categories are added in the admin panel.')
+        }
+      } catch (error: any) {
+        console.error('❌ Error loading menu data:', error)
+        setError(error.message || 'Failed to load menu data. Please check your Firebase configuration.')
       }
     }
     load()
@@ -38,7 +52,7 @@ export default function Home() {
     return () => {
       clearInterval(interval)
     }
-  }, [language])
+  }, [language, activeCategory])
 
   // Handle scroll to detect active category
   useEffect(() => {
@@ -157,6 +171,58 @@ export default function Home() {
             </motion.p>
           </div>
         </motion.header>
+
+        {/* Error Banner */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="container mx-auto px-6 py-4"
+          >
+            <div className="max-w-5xl mx-auto bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <div className="text-red-600 dark:text-red-400 text-xl">⚠️</div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-red-900 dark:text-red-300 mb-1">
+                    Firebase Connection Error
+                  </h3>
+                  <p className="text-sm text-red-700 dark:text-red-400 mb-2">
+                    {error}
+                  </p>
+                  <p className="text-xs text-red-600 dark:text-red-500">
+                    Please check your Firebase configuration and environment variables in your deployment platform.
+                    See <code className="bg-red-100 dark:bg-red-900/30 px-1 rounded">DEPLOYMENT.md</code> for details.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Empty State */}
+        {!error && menuData.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="container mx-auto px-6 py-12"
+          >
+            <div className="max-w-5xl mx-auto text-center">
+              <div className="bg-white/50 dark:bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-foreground/10 dark:border-foreground/20">
+                <p className="text-foreground/70 mb-2">No menu items found.</p>
+                <p className="text-sm text-foreground/50">
+                  Please add categories and items in the{' '}
+                  <a
+                    href="/admin/dashboard"
+                    className="text-foreground underline hover:text-foreground/80"
+                  >
+                    admin panel
+                  </a>
+                  .
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Category Navigation */}
         {menuData.length > 0 && (

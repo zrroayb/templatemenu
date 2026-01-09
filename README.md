@@ -78,13 +78,35 @@ This menu website embodies a soft, iconic aesthetic through:
 - Number of categories
 - Average item price
 
+## Firebase Setup
+
+This project uses Firebase Firestore for data storage. To set up Firebase:
+
+1. Follow the guide in `FIREBASE_CONFIG_GUIDE.md` to get your Firebase config
+2. Create a `.env.local` file in the root directory with your Firebase config:
+
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789012
+NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789012:web:abcdef1234567890
+```
+
+3. Configure Firestore security rules (see `FIREBASE_CONFIG_GUIDE.md`)
+4. Restart the dev server: `npm run dev`
+
+**For Production Deployment:** See `DEPLOYMENT.md` for detailed instructions on setting environment variables in your deployment platform (Vercel, Netlify, etc.).
+
 ## Data Storage
 
-Currently, menu data is stored in:
-- **Runtime**: In-memory with localStorage persistence
-- **Ready for**: Easy migration to database/API
+Menu data is stored in Firebase Firestore:
+- **Categories Collection**: Stores menu categories
+- **Items Subcollection**: Stores menu items within each category
+- **Multilingual Support**: All text fields (title, name, description, tags) support multiple languages (EN, TR, RU)
 
-The data structure is centralized in `lib/menu-data.ts` for easy integration with backend services.
+The data structure is defined in `lib/menu-data.ts` with Firebase CRUD operations.
 
 ## Customization
 

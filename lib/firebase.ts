@@ -22,15 +22,34 @@ export function getFirebaseApp(): FirebaseApp {
       appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
     }
     
-    // Validate config
-    if (!config.apiKey || !config.projectId || !config.appId) {
-      throw new Error('Firebase configuration is missing. Please check your .env.local file.')
+    // Validate config with detailed error messages
+    const missingVars: string[] = []
+    if (!config.apiKey) missingVars.push('NEXT_PUBLIC_FIREBASE_API_KEY')
+    if (!config.projectId) missingVars.push('NEXT_PUBLIC_FIREBASE_PROJECT_ID')
+    if (!config.appId) missingVars.push('NEXT_PUBLIC_FIREBASE_APP_ID')
+    
+    if (missingVars.length > 0) {
+      const errorMsg = `Firebase configuration is missing. Missing environment variables: ${missingVars.join(', ')}. Please check your environment variables in your deployment platform (Vercel/Netlify/etc) or .env.local file.`
+      console.error('❌ Firebase Config Error:', errorMsg)
+      console.error('Current environment:', {
+        isProduction: process.env.NODE_ENV === 'production',
+        hasApiKey: !!config.apiKey,
+        hasProjectId: !!config.projectId,
+        hasAppId: !!config.appId,
+      })
+      throw new Error(errorMsg)
     }
 
-    if (!getApps().length) {
-      app = initializeApp(config)
-    } else {
-      app = getApps()[0]!
+    try {
+      if (!getApps().length) {
+        app = initializeApp(config)
+        console.log('✅ Firebase app initialized successfully')
+      } else {
+        app = getApps()[0]!
+      }
+    } catch (error: any) {
+      console.error('❌ Firebase initialization error:', error)
+      throw new Error(`Failed to initialize Firebase: ${error.message}`)
     }
   }
   return app!

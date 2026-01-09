@@ -86,62 +86,88 @@ function getTranslatedTags(tags: string[] | { [key: string]: string[] } | undefi
 }
 
 export async function getMenuData(language: Language = 'en'): Promise<TranslatedMenuCategory[]> {
-  // Get all categories - can't order by title if it's an object, so we'll sort after
-  const catsSnap = await getDocs(categoriesCol())
-  const categories: TranslatedMenuCategory[] = []
-  
-  for (const catDoc of catsSnap.docs) {
-    const catId = catDoc.id
-    const catData = catDoc.data()
-    const catTitle = catData.title // Can be string or Translations object
-    
-    const itemsSnap = await getDocs(itemsCol(catId))
-    const itemsRaw: MenuItem[] = itemsSnap.docs.map(d => d.data() as MenuItem)
-    
-    // Sort by order field if exists, otherwise by name
-    itemsRaw.sort((a, b) => {
-      if (a.order !== undefined && b.order !== undefined) {
-        return a.order - b.order
-      }
-      if (a.order !== undefined) return -1
-      if (b.order !== undefined) return 1
-      const nameA = typeof a.name === 'string' ? a.name : (a.name as Translations)?.[language] || (a.name as Translations)?.en || ''
-      const nameB = typeof b.name === 'string' ? b.name : (b.name as Translations)?.[language] || (b.name as Translations)?.en || ''
-      return nameA.localeCompare(nameB)
-    })
-    
-    // Get translated category title (always returns string)
-    const translatedTitle = getTranslatedText(catTitle, language, catId)
-    
-    // Map items with translations (always returns strings)
-    const translatedItems: TranslatedMenuItem[] = itemsRaw.map(item => ({
-      id: item.id,
-      name: getTranslatedText(item.name, language, ''),
-      description: getTranslatedText(item.description, language, ''),
-      price: item.price,
-      tags: getTranslatedTags(item.tags, language),
-      imageUrl: item.imageUrl,
-      order: item.order,
-    }))
-    
-    categories.push({
-      id: catId,
-      title: translatedTitle, // Always string after translation
-      icon: catData.icon,
-      items: translatedItems,
-    })
+  // Ensure we're on client side
+  if (typeof window === 'undefined') {
+    return []
   }
-  
-  // Sort categories by translated title (already strings)
-  categories.sort((a, b) => a.title.localeCompare(b.title))
-  
-  return categories
+
+  try {
+    // Get all categories - can't order by title if it's an object, so we'll sort after
+    console.log('📡 Fetching categories from Firestore...')
+    const catsSnap = await getDocs(categoriesCol())
+    console.log(`✅ Found ${catsSnap.docs.length} categories`)
+    const categories: TranslatedMenuCategory[] = []
+    
+    for (const catDoc of catsSnap.docs) {
+      const catId = catDoc.id
+      const catData = catDoc.data()
+      const catTitle = catData.title // Can be string or Translations object
+      
+      const itemsSnap = await getDocs(itemsCol(catId))
+      const itemsRaw: MenuItem[] = itemsSnap.docs.map(d => d.data() as MenuItem)
+      
+      // Sort by order field if exists, otherwise by name
+      itemsRaw.sort((a, b) => {
+        if (a.order !== undefined && b.order !== undefined) {
+          return a.order - b.order
+        }
+        if (a.order !== undefined) return -1
+        if (b.order !== undefined) return 1
+        const nameA = typeof a.name === 'string' ? a.name : (a.name as Translations)?.[language] || (a.name as Translations)?.en || ''
+        const nameB = typeof b.name === 'string' ? b.name : (b.name as Translations)?.[language] || (b.name as Translations)?.en || ''
+        return nameA.localeCompare(nameB)
+      })
+      
+      // Get translated category title (always returns string)
+      const translatedTitle = getTranslatedText(catTitle, language, catId)
+      
+      // Map items with translations (always returns strings)
+      const translatedItems: TranslatedMenuItem[] = itemsRaw.map(item => ({
+        id: item.id,
+        name: getTranslatedText(item.name, language, ''),
+        description: getTranslatedText(item.description, language, ''),
+        price: item.price,
+        tags: getTranslatedTags(item.tags, language),
+        imageUrl: item.imageUrl,
+        order: item.order,
+      }))
+      
+      categories.push({
+        id: catId,
+        title: translatedTitle, // Always string after translation
+        icon: catData.icon,
+        items: translatedItems,
+      })
+    }
+    
+    // Sort categories by translated title (already strings)
+    categories.sort((a, b) => a.title.localeCompare(b.title))
+    
+    console.log(`✅ Successfully loaded ${categories.length} categories with total ${categories.reduce((sum, cat) => sum + cat.items.length, 0)} items`)
+    return categories
+  } catch (error: any) {
+    console.error('❌ Error fetching menu data:', error)
+    if (error.code === 'permission-denied') {
+      console.error('⚠️ Permission denied. Please check Firestore security rules.')
+    } else if (error.code === 'unavailable') {
+      console.error('⚠️ Service unavailable. Please check your internet connection and Firebase project settings.')
+    } else if (error.message?.includes('Firebase configuration')) {
+      console.error('⚠️ Firebase configuration issue. Please check environment variables.')
+    }
+    return []
+  }
 }
 
 // Get raw menu data (untranslated) - for admin panel
 export async function getRawMenuData(): Promise<MenuCategory[]> {
-  const catsSnap = await getDocs(categoriesCol())
-  const categories: MenuCategory[] = []
+  // Ensure we're on client side
+  if (typeof window === 'undefined') {
+    return []
+  }
+
+  try {
+    const catsSnap = await getDocs(categoriesCol())
+    const categories: MenuCategory[] = []
   
   for (const catDoc of catsSnap.docs) {
     const catId = catDoc.id
@@ -160,15 +186,19 @@ export async function getRawMenuData(): Promise<MenuCategory[]> {
       return 0
     })
     
-    categories.push({
-      id: catId,
-      title: catData.title as string | Translations,
-      icon: catData.icon,
-      items,
-    })
+      categories.push({
+        id: catId,
+        title: catData.title as string | Translations,
+        icon: catData.icon,
+        items,
+      })
+    }
+    
+    return categories
+  } catch (error) {
+    console.error('Error fetching raw menu data:', error)
+    return []
   }
-  
-  return categories
 }
 
 // Category CRUD
