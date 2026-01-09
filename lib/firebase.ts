@@ -7,6 +7,11 @@ let app: FirebaseApp | null = null
 let db: Firestore | null = null
 
 export function getFirebaseApp(): FirebaseApp {
+  // Only initialize on client side
+  if (typeof window === 'undefined') {
+    throw new Error('Firebase can only be initialized on the client side')
+  }
+
   if (!app) {
     const config = {
       apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -16,6 +21,12 @@ export function getFirebaseApp(): FirebaseApp {
       messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
       appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
     }
+    
+    // Validate config
+    if (!config.apiKey || !config.projectId || !config.appId) {
+      throw new Error('Firebase configuration is missing. Please check your .env.local file.')
+    }
+
     if (!getApps().length) {
       app = initializeApp(config)
     } else {
@@ -26,6 +37,11 @@ export function getFirebaseApp(): FirebaseApp {
 }
 
 export function getDb(): Firestore {
+  // Only initialize on client side
+  if (typeof window === 'undefined') {
+    throw new Error('Firestore can only be accessed on the client side')
+  }
+
   if (!db) {
     db = getFirestore(getFirebaseApp())
   }

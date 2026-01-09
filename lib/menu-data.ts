@@ -58,8 +58,19 @@ export interface TranslatedMenuItem {
 }
 
 // Firestore collections and operations
-const categoriesCol = () => collection(getDb(), 'categories')
-const itemsCol = (categoryId: string) => collection(getDb(), 'categories', categoryId, 'items')
+const categoriesCol = () => {
+  if (typeof window === 'undefined') {
+    throw new Error('Firestore can only be accessed on the client side')
+  }
+  return collection(getDb(), 'categories')
+}
+
+const itemsCol = (categoryId: string) => {
+  if (typeof window === 'undefined') {
+    throw new Error('Firestore can only be accessed on the client side')
+  }
+  return collection(getDb(), 'categories', categoryId, 'items')
+}
 
 // Helper functions to get translated text
 function getTranslatedText(text: string | Translations | undefined, language: Language, fallback = ''): string {

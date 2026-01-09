@@ -32,26 +32,51 @@ const translations: Record<Language, Record<string, string>> = {
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>('en')
+  const [isHydrated, setIsHydrated] = useState(false)
 
   useEffect(() => {
-    // Load language from localStorage or detect browser language
-    const savedLanguage = localStorage.getItem('language') as Language | null
-    if (savedLanguage && ['tr', 'en', 'ru'].includes(savedLanguage)) {
-      setLanguageState(savedLanguage)
-    } else {
-      // Detect browser language
-      const browserLang = navigator.language.split('-')[0]
-      if (browserLang === 'tr' || browserLang === 'ru') {
-        setLanguageState(browserLang)
-      } else {
-        setLanguageState('en')
+    // Only access localStorage on client side
+    setIsHydrated(true)
+    
+    try {
+      const savedLanguage = localStorage.getItem('language') as Language | null
+      if (savedLanguage && ['tr', 'en', 'ru'].includes(savedLanguage)) {
+        setLanguageState(savedLanguage)
+        return
       }
+    } catch (error) {
+      // localStorage not available (SSR)
+      console.warn('localStorage not available:', error)
     }
+
+    // Detect browser language (only on client)
+    try {
+      if (typeof window !== 'undefined' && navigator?.language) {
+        const browserLang = navigator.language.split('-')[0]
+        if (browserLang === 'tr' || browserLang === 'ru') {
+          setLanguageState(browserLang)
+          return
+        }
+      }
+    } catch (error) {
+      // Navigator not available
+      console.warn('Navigator not available:', error)
+    }
+
+    // Default to English
+    setLanguageState('en')
   }, [])
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang)
-    localStorage.setItem('language', lang)
+    // Only save to localStorage on client side
+    if (isHydrated && typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('language', lang)
+      } catch (error) {
+        console.warn('Failed to save language to localStorage:', error)
+      }
+    }
   }
 
   const t = (key: string, fallback?: string): string => {
