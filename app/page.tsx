@@ -34,8 +34,8 @@ export default function Home() {
         const data = await getMenuData(language)
         setMenuData(data)
         // Set first category as active initially
-        if (data.length > 0 && !activeCategory) {
-          setActiveCategory(data[0].id)
+        if (data.length > 0) {
+          setActiveCategory((prev) => prev || data[0].id)
         }
         // If no data and no error was thrown, show helpful message
         if (data.length === 0) {
@@ -46,13 +46,10 @@ export default function Home() {
         setError(error.message || 'Failed to load menu data. Please check your Firebase configuration.')
       }
     }
+    
+    // Only load data once on mount or when language changes
     load()
-    const interval = setInterval(load, 1500)
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [language, activeCategory])
+  }, [language])
 
   // Handle scroll to detect active category
   useEffect(() => {
